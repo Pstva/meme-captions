@@ -1,3 +1,5 @@
 /key.txt
 .idea/
-
+data/flickr/images/
+data/conceptual_captions/images/
+models/
