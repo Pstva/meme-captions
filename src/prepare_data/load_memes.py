@@ -2,6 +2,7 @@ from PIL import Image
 import requests
 import pandas as pd
 import argparse
+from time import sleep
 """
 скачивает мемы по ссылкам вк и сохраняет в папку
 """
@@ -12,6 +13,9 @@ def load_save(url, name, folder_to_save):
         im = Image.open(requests.get(url, stream=True).raw)
         im.save(f"{folder_to_save}/{name}.jpg")
         return True
+    except requests.exceptions.SSLError:
+        sleep(5)
+        return False
     except:
         return False
 

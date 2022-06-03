@@ -3,3 +3,6 @@
 data/flickr/images/
 data/conceptual_captions/images/
 models/
+/navec_hudlit_v1_12B_500K_300d_100q.tar
+/data/vizwiz/train/
+/data/vizwiz/val/

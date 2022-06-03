@@ -19,7 +19,6 @@ CLIP_MODEL = 'ruclip-vit-base-patch32-384'
 DEVICE = 'cpu'
 
 # TODO: добавить validation на вал тесте
-# TODO: обучить тестово на колабе
 
 # TODO: добавить аугментацию
 # TODO: оставить только  тренировку transformer, по префиксу
@@ -31,8 +30,7 @@ class MappingType(Enum):
     MLP = 'mlp'
     Transformer = 'transformer'
 
-
-# TODO: проверить
+# TODO: добавить предобучение на переведенных данных
 class MemeDataset(Dataset):
 
     def __init__(self, prefix_length: int, data_path: str, images_path: str, gpt2_type: str = GPT_MODEL,
@@ -307,7 +305,7 @@ def load_model(config_path: str, epoch_or_latest: Union[str, int] = '_latest'):
 
 def train(dataset: MemeDataset, model: ClipCaptionModel, args,
           lr: float = 2e-5, warmup_steps: int = 5000, output_dir: str = ".", output_prefix: str = ""):
-# TODO: сделать накопление градиентов по какому-то числу мини-батчей
+# TODO: сделать накопление градиентов по какому-то числу мини-батчей, если не влезет на карточку норм батч
     device = torch.device(DEVICE)
     batch_size = args.bs
     epochs = args.epochs
