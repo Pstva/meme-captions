@@ -17,7 +17,7 @@ from slovnet.model.emb import NavecEmbedding
 
 
 MAX_SEQ_LEN = 100
-PRETRAIN_EPOCHS = 40
+PRETRAIN_EPOCHS = 30
 MEME_EPOCHS = 20
 SAVE_EVERY = 2
 BATCH_SIZE = 25
@@ -45,7 +45,12 @@ class Data(Dataset):
         with open(data_path, 'r') as f:
             f.readline()
             for line in f:
-                uid, caption = line.strip().split('\t')
+                l = line.strip().split('\t')
+                if len(l) != 2:
+                    continue
+                uid, caption = l
+                if not os.path.exists(os.path.join(image_path, f'{uid}.jpg')):
+                    continue
                 self.captions.append(caption)
                 self.image_ids.append(uid)
         self.vocab = vocab
@@ -71,20 +76,15 @@ class Data(Dataset):
 
         tokens = word_tokenize(str(caption).lower())
         caption = []
-        # добавляем в описание токен начала
-        #caption.append(self.vocab('<start>'))
-        # добавялем все остальные токены
+        # добавялем все токены
         caption.extend([self.vocab(token) for token in tokens])
         caption_len = len(caption)
         # если описание слишком длинное - обрезаем его
         if len(caption) > self.max_len:
             caption = caption[:self.max_len]
-        # добавляем токен конца
-        #caption.append(self.vocab('<end>'))
         # если описание недостаточно длинное - добавляем паддинги
         if len(caption) < self.max_len:
             caption.extend([self.vocab('<pad>')] * (self.max_len - len(caption)))
-
         target = torch.tensor(caption, dtype=torch.long)
         return image, target, caption_len
 
@@ -119,8 +119,9 @@ class Vocabulary(object):
 
     def from_json(self, path):
         with open(path, 'r') as f:
-            self.word2idx = json.load(f)
-        self.idx2word = {v: k for k, v in self.word2idx.items()}
+            self.idx2word = json.load(f)
+        self.idx2word = {int(k): v for k, v in self.idx2word.items()}
+        self.word2idx = {v: k for k, v in self.idx2word.items()}
         self.idx = len(self.word2idx)
 
 
@@ -228,7 +229,6 @@ class DecoderRNN(nn.Module):
         # Fully connected layer
         return self.linear(lstm_out[:, :-1, :])  # outputs shape : (batch_size, caption length, vocab_size)
 
-
     def sample(self, inputs, max_len):
         """
         генерация описания под картинку
@@ -245,6 +245,10 @@ class DecoderRNN(nn.Module):
                 outputs = self.linear(lstm_out)  # outputs shape : (1, 1, vocab_size)
                 outputs = outputs.squeeze(1)  # outputs shape : (1, vocab_size)
                 p = F.softmax(outputs, dim=1).detach().cpu().numpy()[0]
+            unk_prob = p[1]
+            # зануляю вероятность генереации <unk>
+            p += unk_prob / (p.shape[0] - 1)
+            p[1] = 0
             max_index = np.random.choice(len(outputs[0]), p=p)  # predict the next word
             output.append(max_index)  # storing the word predicted
             # <pad> token
@@ -271,7 +275,6 @@ def train():
     del captions
     del captions2
     del captions3
-
 
     # сохраняем словарь
     vocab.save(vocab_path_to_save)
@@ -339,9 +342,12 @@ def train():
 
         train_total_loss /= len(train_dataloader)
 
-        # шаг оценки модели, лосс на вал датасете  + bleu-3 на нем же
+        # шаг оценки модели, лосс на вал датасете  + bleu-2 на нем же
+        EVAL_SIZE = 2000
+        n_eval = 0
         hypotheses, references = [], []
         for x in tqdm(val_dataloader):
+            n_eval += BATCH_SIZE
             decoder.eval()
             encoder.eval()
             with torch.no_grad():
@@ -357,6 +363,9 @@ def train():
 
                 val_total_loss += loss.item()
 
+            if n_eval >= EVAL_SIZE:
+                break
+
         # просто печать рандомного реального описания и нашей генерации, чтобы посмотреть какобстоят дела у сети
         print(f"val ref: {references[0]}")
         print(f"val hyp: {hypotheses[0]}")
@@ -365,17 +374,16 @@ def train():
             f.write(f"val ref: {references[0]}\n")
             f.write(f"val hyp: {hypotheses[0]}\n")
 
-        val_total_loss /= len(val_dataloader)
+        val_total_loss /= n_eval
         val_bleu = corpus_bleu(references, hypotheses, weights=(1/2, 1/2))
         print(f"Epoch: {epoch+1}, train_loss: {train_total_loss}, val_loss: {val_total_loss}, val_bleu-2: {val_bleu}")
         with open(log_file, 'a') as f:
             f.write(f"Epoch: {epoch+1}, train_loss: {train_total_loss}, val_loss: {val_total_loss}, val_bleu-2: {val_bleu}\n")
 
-    torch.save(encoder.state_dict(), f"{output_folder}/encoder_ep{epoch + 1}_flickr.dth")
-    torch.save(decoder.state_dict(), f"{output_folder}/decoder_ep{epoch + 1}_flickr.dth")
+    torch.save(encoder.state_dict(), f"{output_folder}/encoder_ep{epoch + 1}_pretrained.dth")
+    torch.save(decoder.state_dict(), f"{output_folder}/decoder_ep{epoch + 1}_pretrained.dth")
 
-    # Далее, дообучаем на описаниях мемов в течение максимум MEME_EPOCHS
-    # patience = PATIENCE, если в течение этого числа эпох bleu-3 не увеличивается, заканчиваем обучение
+    # Далее, дообучаем на описаниях мемов в течение MEME_EPOCHS
 
     with open(log_file, 'a') as f:
         f.write(f"Starting training meme captions\n\n")
@@ -406,6 +414,7 @@ def train():
 
         train_total_loss /= len(train_dataloader)
         # шаг оценки на валидационном датасете
+
         hypotheses, references = [], []
         for x in tqdm(val_dataloader):
             decoder.eval()
@@ -429,7 +438,6 @@ def train():
         with open(log_file, 'a') as f:
             f.write(f"meme val ref: {references[0]}\n")
             f.write(f"meme val hyp: {hypotheses[0]}\n")
-
 
         val_total_loss /= len(val_dataloader)
         val_bleu = corpus_bleu(references, hypotheses, weights=(1/3, 1/3, 1/3))

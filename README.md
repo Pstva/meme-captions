@@ -18,16 +18,12 @@ Milestone лежит [тут](Milestone.md)
 
 [Код для оценки моделей](src/baseline/eval_baseline.py)
 
-[Логи обучения и оценка на тестовых данных](output/baseline.log)
-
 
 ## Бейзлайновая модель 2 Encoder(ResNet-101) + Decoder (LSTM)
 
 [Код для обучения](src/baseline/train_baseline2.py)
 
 [Код для оценки моделей](src/baseline/eval_baseline2.py)
-
-[Логи обучения и оценка на тестовых данных](output/baseline2.log)
 
 ## TODO: ruCLIP + ruGPT
 

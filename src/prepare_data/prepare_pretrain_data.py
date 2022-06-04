@@ -24,8 +24,10 @@ if __name__ == "__main__":
 
     # preparing val vizwiz data
     data = pd.read_csv('data/raw/vizwiz_val_translated.csv')
+    data = data.rename({'file_name': 'uid'}, axis=1)
     data[['uid', 'text']].to_csv('data/vizwiz/val.csv', index=False, sep='\t')
 
     # preparing train vizwiz data
     data = pd.read_csv('data/raw/vizwiz_train_translated.csv')
+    data = data.rename({'file_name': 'uid'}, axis=1)
     data[['uid', 'text']].to_csv('data/vizwiz/train.csv', index=False, sep='\t')

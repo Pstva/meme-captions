@@ -25,7 +25,6 @@ def make_df(file):
 
     data = ann_data.merge(image_data, how='inner', on='id')[['caption', 'file_name']]
     data['file_name'] = data['file_name'].apply(lambda x: x[:-4])
-    data = data.rename({'file_name': 'uid'})
 
     data = data[data['caption'] != "Quality issues are too severe to recognize visual content."]
     return data
