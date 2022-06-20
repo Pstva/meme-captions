@@ -15,7 +15,6 @@ import numpy as np
 from navec import Navec
 from slovnet.model.emb import NavecEmbedding
 
-
 MAX_SEQ_LEN = 100
 PRETRAIN_EPOCHS = 30
 MEME_EPOCHS = 20

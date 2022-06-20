@@ -1,0 +1,21 @@
+Train only prefix
+>>> Training epoch 0
+epoch:1, train_loss:4.157009421142877, val_loss:3.966598671132868
+>>> Training epoch 1
+epoch:2, train_loss:3.845988017437505, val_loss:3.700876574082808
+>>> Training epoch 2
+epoch:3, train_loss:3.662810453714109, val_loss:3.5790032256733286
+>>> Training epoch 3
+epoch:4, train_loss:3.581096149893368, val_loss:3.5272543907165526
+>>> Training epoch 4
+epoch:5, train_loss:3.5308799425760906, val_loss:3.4931478977203367
+>>> Training epoch 5
+epoch:6, train_loss:3.4953356443666945, val_loss:3.4653384165330365
+>>> Training epoch 6
+epoch:7, train_loss:3.464528881334791, val_loss:3.44831994230097
+>>> Training epoch 7
+epoch:8, train_loss:3.4371321378969677, val_loss:3.4304959600622005
+>>> Training epoch 8
+epoch:9, train_loss:3.409201847338209, val_loss:3.4211625402623955
+>>> Training epoch 9
+epoch:10, train_loss:3.3898380073846557, val_loss:3.4131216395985
