@@ -22,7 +22,7 @@ def eval_prediction(hypotheses, references):
 
     m = 0
     for h, r in zip(hypotheses, references):
-        m += single_meteor_score(" ".join(h), " ".join(r[0]))
+        m += single_meteor_score(r[0], h)
     m /= len(hypotheses)
 
     return b1, b2, b3, b4, m

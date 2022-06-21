@@ -39,7 +39,7 @@ if __name__ == "__main__":
         # meteor score
         m = 0
         for h, r in zip(hypotheses, references):
-            m += single_meteor_score(h[0], r[0][0])
+            m += single_meteor_score(r[0], h)
         m /= len(hypotheses)
 
         return b1, b2, b3, b4, m
@@ -71,11 +71,11 @@ if __name__ == "__main__":
         with torch.no_grad():
             images, captions, lengths = x
             for image, caption, caption_len in zip(images, captions, lengths):
-                ref = decoder.sample(encoder(image.unsqueeze(0).to(DEVICE)), max_len=100)
+                hyp = decoder.sample(encoder(image.unsqueeze(0).to(DEVICE)), max_len=100)
                 caption = covert_idx_to_sent(caption, tensor=True)
                 references.append([caption])
-                ref = covert_idx_to_sent(ref, tensor=False)
-                hypotheses.append(ref)
+                hyp = covert_idx_to_sent(hyp, tensor=False)
+                hypotheses.append(hyp)
     b1, b2, b3, b4, m = eval_prediction(hypotheses, references)
     print(f"test_bleu-4(meme): {b4}")
 
@@ -88,11 +88,9 @@ if __name__ == "__main__":
         f.write(f"test_bleu-4(meme): {b4}\n")
         f.write(f"test_meteor-4(meme): {m}\n")
 
-    test_predictions = 'output/baseline2_predictions.csv'
-    with open(test_predictions, 'w') as f:
-        for hyp, ref in zip(hypotheses, references):
-            sent1 = " ".join(hyp)
-            sent2 = " ".join(ref[0])
-            f.write(f"{sent2} | {sent1}\n")
-
-    ## плюс оценим
+    # test_predictions = 'output/baseline2_predictions.csv'
+    # with open(test_predictions, 'w') as f:
+    #     for hyp, ref in zip(hypotheses, references):
+    #         sent1 = " ".join(hyp)
+    #         sent2 = " ".join(ref[0])
+    #         f.write(f"{sent2} | {sent1}\n")

@@ -25,9 +25,12 @@ Milestone лежит [тут](Milestone.md)
 
 [Код для оценки моделей](src/baseline/eval_baseline2.py)
 
-## TODO: ruCLIP + ruGPT
+## ruCLIP + MLP + ruGPT
 
 [Код для обучения](src/clip_model/train.py)
 
+[Код для оценки моделей](src/clip_model/evaluate.py)
 
-TODO: код для использования моделей генерации описания
+## RuDOLPH
+
+[Блокнот с дообучениeм и оценкой](src/finetune_eval_rudolph.ipynb)

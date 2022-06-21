@@ -152,8 +152,8 @@ meme val hyp: ['подпись', ':', '``', '<unk>', '<unk>', '<unk>', '<unk>', 
 Epoch: 50, train_loss: 1.316608811126036, val_loss: 2.3933150714093987, val_bleu-3(meme): 0.04162924480271821
 
 Test meme evaluation: 
-test_bleu-1(meme): 0.21990098367306515
-test_bleu-2(meme): 0.08810229805671885
-test_bleu-3(meme): 0.03410863712744984
-test_bleu-4(meme): 0.01606359135546614
-test_meteor-4(meme): 0.09981684981684982
+test_bleu-1(meme): 0.2206333322036352
+test_bleu-2(meme): 0.08788052201161345
+test_bleu-3(meme): 0.03199405611743667
+test_bleu-4(meme): 0.012423084903504768
+test_meteor-4(meme): 0.13227585398802424

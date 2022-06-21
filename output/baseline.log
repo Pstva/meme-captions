@@ -83,8 +83,8 @@ Epoch: 70, train_loss: 0.1347934270021962, val_loss: 4.803260270032015, val_bleu
 
 
 Test meme evaluation: 
-test_bleu-1(meme): 0.2365403455258041
-test_bleu-2(meme): 0.12524633005192543
-test_bleu-3(meme): 0.06832267182572499
-test_bleu-4(meme): 0.044314753279022984
-test_meteor-4(meme): 0.1684054109175605
+test_bleu-1(meme): 0.24162094147307214
+test_bleu-2(meme): 0.12739938702848677
+test_bleu-3(meme): 0.0678083180374897
+test_bleu-4(meme): 0.042621144918145934
+test_meteor-4(meme): 0.16702739117664264

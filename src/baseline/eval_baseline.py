@@ -9,7 +9,7 @@ import torch
 
 if __name__ == "__main__":
     captions = list(pd.read_csv('data/flickr/train.csv', sep='\t')['text'])
-    captions3 = list(pd.read_csv('data/for_training/train.csv', sep='\t')['text'])
+    captions3 = list(pd.read_csv('data/memes/train.csv', sep='\t')['text'])
     captions.extend(captions3)
     vocab = build_vocab(captions)
     vocab_size = len(vocab)
@@ -38,7 +38,7 @@ if __name__ == "__main__":
         # meteor score
         m = 0
         for h, r in zip(hypotheses, references):
-            m += single_meteor_score(h, r[0])
+            m += single_meteor_score(r[0], h)
         m /= len(hypotheses)
 
         return b1, b2, b3, b4, m
@@ -58,18 +58,18 @@ if __name__ == "__main__":
     decoder.eval()
     encoder.eval()
 
-    test_dataloader = get_loader('data/images', 'data/for_training/test.csv', vocab, shuffle=False, mode='test')
+    test_dataloader = get_loader('data/memes/images', 'data/memes/test.csv', vocab, shuffle=False, mode='test')
 
     references, hypotheses = [], []
     for x in test_dataloader:
         with torch.no_grad():
             images, captions, lengths = x
             for image, caption, caption_len in zip(images, captions, lengths):
-                ref = decoder.sample(encoder(image.unsqueeze(0).to(DEVICE)))
+                hyp = decoder.sample(encoder(image.unsqueeze(0).to(DEVICE)))
                 caption = covert_idx_to_sent(caption, tensor=True)
                 references.append([caption])
-                ref = covert_idx_to_sent(ref, tensor=False)
-                hypotheses.append(ref)
+                hyp = covert_idx_to_sent(hyp, tensor=False)
+                hypotheses.append(hyp)
     b1, b2, b3, b4, m = eval_prediction(hypotheses, references)
     print(f"test_bleu-4(meme): {b4}")
 
@@ -82,30 +82,15 @@ if __name__ == "__main__":
         f.write(f"test_bleu-4(meme): {b4}\n")
         f.write(f"test_meteor-4(meme): {m}\n")
 
-    test_predictions = 'output/baseline_predictions.csv'
-    with open(test_predictions, 'w') as f:
-        for hyp, ref in zip(hypotheses, references):
-            sent1 = " ".join(hyp)
-            sent2 = " ".join(ref[0])
-            f.write(f"{sent2}\t{sent1}\n")
+    # test_predictions = 'output/baseline_predictions.csv'
+    # with open(test_predictions, 'w') as f:
+    #     for hyp, ref in zip(hypotheses, references):
+    #         sent1 = " ".join(hyp)
+    #         sent2 = " ".join(ref[0])
+    #         f.write(f"{sent2}\t{sent1}\n")
 
 
-#### predictions for flickr
 
-    test_dataloader = get_loader('data/flickr/images', 'data/flickr/val.csv', vocab, shuffle=False, mode='test')
-
-    references, hypotheses = [], []
-    for x in test_dataloader:
-        with torch.no_grad():
-            images, captions, lengths = x
-            for image, caption, caption_len in zip(images, captions, lengths):
-                ref = decoder.sample(encoder(image.unsqueeze(0).to(DEVICE)))
-                caption = covert_idx_to_sent(caption, tensor=True)
-                references.append([caption])
-                ref = covert_idx_to_sent(ref, tensor=False)
-                hypotheses.append(ref)
-    b1, b2, b3, b4, m = eval_prediction(hypotheses, references)
-    print(f"test_bleu-4(meme): {b4}")
     #
     # test_predictions = 'output/baseline_predictions_flickr.csv'
     # with open(test_predictions, 'w') as f:
